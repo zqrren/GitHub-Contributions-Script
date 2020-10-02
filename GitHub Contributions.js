@@ -14,7 +14,6 @@ let array = [...resp.matchAll(regex)].slice(-91)
 let w = new ListWidget()
 const header = w.addText("Github contributions")
   header.leftAlignText()
-  header.textColor = Color.white()
   header.font = Font.heavySystemFont(18)
 // 设置主要内容
 const rect = "■ "
@@ -54,7 +53,6 @@ let formatter = new DateFormatter()
   let forDate = formatter.string(new Date())
 const footer = w.addText(forDate)
   footer.rightAlignText()
-  footer.textColor = Color.white()
   footer.font = Font.mediumSystemFont(8)
 
 w.presentMedium()
