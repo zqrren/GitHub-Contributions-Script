@@ -1,7 +1,6 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: deep-gray; icon-glyph: code-branch;
-// share-sheet-inputs: plain-text;
+// GitHub：https://github.com/zqrren/GitHub-Contributions-Script
+// version：0.4
+// changes：add script information
 function formatDate(date,formatStr){
   let formatter = new DateFormatter()
   formatter.dateFormat = formatStr
