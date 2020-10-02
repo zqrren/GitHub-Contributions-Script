@@ -2,14 +2,19 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-gray; icon-glyph: code-branch;
 // share-sheet-inputs: plain-text;
+function formatDate(date,formatStr){
+  let formatter = new DateFormatter()
+  formatter.dateFormat = formatStr
+  let forDate = formatter.string(date)
+  return forDate
+}
 // 获取数据
 const regex = /<rect class="day" width="[0-9]{2}" height="[0-9]{2}" x="[0-9\-]{0,3}" y="[0-9\-]{0,3}" fill="(#[a-z0-9]{6})" data-count="(\d{0,3})" data-date="(\d{4}-\d{2}-\d{2})"\/>/g;
-let url = "https://github.com/users/"+args.widgetParameter+"/contributions";
+let url = "https://github.com/users/"+args.widgetParameter+"/contributions?to="+formatDate(new Date(), "yyyy-MM-dd");
 let req = new Request(url);
-// 设置时区
-req.headers = {"Cookie":"tz=Asia/Shanghai"}
 let resp = await req.loadString()  
 let array = [...resp.matchAll(regex)].slice(-91)
+console.log(array)
 // 设置小组件头部
 let w = new ListWidget()
 const header = w.addText("Github contributions")
@@ -32,10 +37,7 @@ for (let [i,l] of ls.entries()){
   l.layoutHorizontally()
   // 获取日期对应的星期
   let date = new Date(array[i][3])
-  let formatter = new DateFormatter()
-  formatter.dateFormat = "E"
-  let forDate = formatter.string(date)
-  let t = l.addText("     " + forDate + "     ")
+  let t = l.addText("     " + formatDate(date, "E") + "     ")
   t.font = Font.regularSystemFont(12)
 }
 
@@ -48,10 +50,7 @@ for (let [i,day] of array.entries()){
 }
 
 // 设置小组件尾部
-let formatter = new DateFormatter()
-  formatter.dateFormat = "更新于 yyyy-MM-dd HH:mm"
-  let forDate = formatter.string(new Date())
-const footer = w.addText(forDate)
+const footer = w.addText(formatDate(new Date(), "更新于 yyyy-MM-dd HH:mm"))
   footer.rightAlignText()
   footer.font = Font.mediumSystemFont(8)
 
