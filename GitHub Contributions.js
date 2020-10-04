@@ -1,6 +1,6 @@
 // GitHub：https://github.com/zqrren/GitHub-Contributions-Script
-// version：0.4
-// changes：add script information
+// version：0.5
+// changes：add solution when request return 404
 function formatDate(date,formatStr){
   let formatter = new DateFormatter()
   formatter.dateFormat = formatStr
@@ -9,16 +9,21 @@ function formatDate(date,formatStr){
 }
 // 获取数据
 const regex = /<rect class="day" width="[0-9]{2}" height="[0-9]{2}" x="[0-9\-]{0,3}" y="[0-9\-]{0,3}" fill="(#[a-z0-9]{6})" data-count="(\d{0,3})" data-date="(\d{4}-\d{2}-\d{2})"\/>/g;
-let url = "https://github.com/users/"+args.widgetParameter+"/contributions?to="+formatDate(new Date(), "yyyy-MM-dd");
+let user = args.widgetParameter
+let url = "https://github.com/users/"+user+"/contributions?to="+formatDate(new Date(), "yyyy-MM-dd");
+let url1 = "https://github.com/users/"+user+"/contributions"
 let req = new Request(url);
 let resp = await req.loadString()  
+if(resp === "Not Found"){
+  req = new Request(url1);
+  resp = await req.loadString()
+}
 let array = [...resp.matchAll(regex)].slice(-91)
-console.log(array)
 // 设置小组件头部
 let w = new ListWidget()
 const header = w.addText("Github contributions")
-  header.leftAlignText()
-  header.font = Font.heavySystemFont(18)
+header.leftAlignText()
+header.font = Font.heavySystemFont(18)
 // 设置主要内容
 const rect = "■ "
 // 初始化每一行
