@@ -1,29 +1,38 @@
 // GitHub：https://github.com/zqrren/GitHub-Contributions-Script
-// version：0.5
-// changes：add solution when request return 404
+const now = new Date()
+const today = new Date(now).setHours(0,0,0,0)
+const hour = new Date(now).setMinutes(0,0,0)
+const dateToday = new Date(today)
+const dateHour = new Date(hour)
+
+const regex = /<rect class="day" width="[0-9]{2}" height="[0-9]{2}" x="[0-9\-]{0,3}" y="[0-9\-]{0,3}" fill="(#[a-z0-9]{6})" data-count="(\d{0,3})" data-date="(\d{4}-\d{2}-\d{2})"\/>/g;
+
 function formatDate(date,formatStr){
   let formatter = new DateFormatter()
   formatter.dateFormat = formatStr
   let forDate = formatter.string(date)
   return forDate
 }
-// 获取数据
-const regex = /<rect class="day" width="[0-9]{2}" height="[0-9]{2}" x="[0-9\-]{0,3}" y="[0-9\-]{0,3}" fill="(#[a-z0-9]{6})" data-count="(\d{0,3})" data-date="(\d{4}-\d{2}-\d{2})"\/>/g;
-let user = args.widgetParameter
-let url = "https://github.com/users/"+user+"/contributions?to="+formatDate(new Date(), "yyyy-MM-dd");
-let url1 = "https://github.com/users/"+user+"/contributions"
-let req = new Request(url);
-let resp = await req.loadString()  
-if(resp === "Not Found"){
-  req = new Request(url1);
-  resp = await req.loadString()
-}
-let array = [...resp.matchAll(regex)].slice(-91)
-// 设置小组件头部
+
 let w = new ListWidget()
-const header = w.addText("Github contributions")
-header.leftAlignText()
-header.font = Font.heavySystemFont(18)
+
+let user = ""
+
+if(config.runsInWidget){
+  let name = args.widgetParameter
+  user = name
+  // 设置一小时更新一次
+  w.refreshAfterDate = new Date(dateHour.setHours(dateHour.getHours()+1))
+}
+
+let url = "https://github.com/users/"+user+"/contributions?date-to="+formatDate(dateToday, "yyyy-MM-dd");
+let req = new Request(url);
+let resp = await req.loadString()
+let array = [...resp.matchAll(regex)].slice(-91)
+
+const header = w.addText("GitHub Contributions")
+header.font = Font.heavySystemFont(16)
+
 // 设置主要内容
 const rect = "■ "
 // 初始化每一行
@@ -35,16 +44,16 @@ let l5 = w.addStack()
 let l6 = w.addStack()
 let l7 = w.addStack()
 let ls = [l1,l2,l3,l4,l5,l6,l7]
-
 for (let [i,l] of ls.entries()){
   // 设置水平放置
   l.layoutHorizontally()
+  l.addSpacer()
   // 获取日期对应的星期
   let date = new Date(array[i][3])
-  let t = l.addText("     " + formatDate(date, "E") + "     ")
-  t.font = Font.regularSystemFont(12)
+  let t = l.addText(" " + formatDate(date, "E"))
+  t.font = new Font("Menlo-Regular", 12)
+  l.addSpacer()
 }
-
 // 填充每一个小绿块
 for (let [i,day] of array.entries()){
   let color = day[1]
@@ -53,9 +62,13 @@ for (let [i,day] of array.entries()){
   t.font = Font.regularSystemFont(12)
 }
 
-// 设置小组件尾部
-const footer = w.addText(formatDate(new Date(), "更新于 yyyy-MM-dd HH:mm"))
-  footer.rightAlignText()
-  footer.font = Font.mediumSystemFont(8)
+for (let l of ls){
+  l.addSpacer()
+}
 
+const footer = w.addText(formatDate(now, "yyyy-MM-dd HH:mm"))
+footer.font = Font.mediumSystemFont(8)
+footer.rightAlignText()
+
+Script.setWidget(w)
 w.presentMedium()
