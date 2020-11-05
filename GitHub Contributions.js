@@ -5,7 +5,9 @@ const hour = new Date(now).setMinutes(0,0,0)
 const dateToday = new Date(today)
 const dateHour = new Date(hour)
 
-const regex = /<rect class="day" width="[0-9]{2}" height="[0-9]{2}" x="[0-9\-]{0,3}" y="[0-9\-]{0,3}" fill="var\(--color-calendar-graph-day-(.{0,3}bg)\)" data-count="(\d{0,3})" data-date="(\d{4}-\d{2}-\d{2})"\/>/g;
+const regex = /<rect class="day" width="[0-9]{2}" height="[0-9]{2}" x="[0-9\-]{0,3}" y="[0-9\-]{0,3}" fill="var\((.*)\)" data-count="(\d{0,3})" data-date="(\d{4}-\d{2}-\d{2})"\/>/g;
+
+const reg = /<li style="background-color: var\((.*)\)"><\/li>/g;
 
 function formatDate(date,formatStr){
   let formatter = new DateFormatter()
@@ -29,11 +31,17 @@ let url = "https://github.com/users/"+user+"/contributions?date-to="+formatDate(
 let req = new Request(url);
 let resp = await req.loadString()
 let array = [...resp.matchAll(regex)].slice(-91)
-
+let color = [...resp.matchAll(reg)]
 const header = w.addText("GitHub Contributions")
 header.font = Font.heavySystemFont(16)
 
-const req_color = {"bg":"#ebedf0","L1-bg":"#9be9a8","L2-bg":"#40c463","L3-bg":"#30a14e","L4-bg":"#216e39"}
+colors = ["#ebedf0","#9be9a8","#40c463","#30a14e","#216e39"]
+
+req_color = {}
+
+for(let [i,c] of color.entries()){
+  req_color[c[1]] = colors[i]
+}
 
 // 设置主要内容
 const rect = "■ "
